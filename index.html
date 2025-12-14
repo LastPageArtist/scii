@@ -16,7 +16,7 @@
             font-family: 'Courier New', monospace;
             background: #0d1117;
             color: #c9d1d9;
-            /* Allow vertical scroll for small screens/collapsed panel */
+            /* Rely on e.preventDefault() on canvas for drawing/dragging to prevent unwanted page scrolling. */
             overflow-x: hidden; 
             overflow-y: auto;
         }
@@ -76,6 +76,7 @@
             border: 2px dashed #58a6ff;
             background: rgba(88, 166, 255, 0.1);
             pointer-events: none;
+            transition: border-color 0.1s; 
         }
 
         /* Control Panel Container (Mobile/Tablet Default: Full-Width Bottom) */
@@ -178,7 +179,6 @@
 
         /*
          * MOBILE & TABLET TINY BUTTON OVERRIDE (Screen width <= 1200px)
-         * Shows current symbol and is not blue.
          */
         @media (max-width: 1200px) {
             
@@ -305,9 +305,9 @@
             <div class="control-group">
                 <label>Canvas Size</label>
                 <div class="size-inputs">
-                    <input type="number" id="width" value="120" min="10" max="200">
+                    <input type="number" id="width" value="60" min="10" max="200">
                     <span>×</span>
-                    <input type="number" id="height" value="20" min="10" max="80">
+                    <input type="number" id="height" value="10" min="10" max="80">
                     <button onclick="resizeCanvas()">Apply</button>
                 </div>
             </div>
@@ -378,8 +378,9 @@
 
     <script>
         // --- Core Variables & Constants ---
-        let width = 120;
-        let height = 20;
+        // FIX 1: Set default canvas size to 60x10 for better mobile experience
+        let width = 60;
+        let height = 10;
         let fontSize = 14;
         // Use fixed aspect ratios for cross-device consistency
         const CHAR_WIDTH_RATIO = 0.6; 
@@ -642,9 +643,8 @@
                     cell.dataset.x = x;
                     cell.dataset.y = y;
 
-                    // Use 'pointerdown' for more reliable mobile touch events
                     cell.addEventListener('mousedown', (e) => handleMouseDown(e, x, y));
-                    cell.addEventListener('touchstart', (e) => handleMouseDown(e, x, y), { passive: true });
+                    cell.addEventListener('touchstart', (e) => handleMouseDown(e, x, y), { passive: false }); 
                     
                     cell.addEventListener('mouseenter', () => handleMouseEnter(x, y));
                     // Mobile equivalent of mouseenter for drawing/erasing
@@ -662,6 +662,20 @@
 
             saveState();
         }
+
+        // Optimized render function that only updates a specific bounding box
+        function fastRenderGrid(minX, minY, maxX, maxY) {
+             for (let y = minY; y <= maxY; y++) {
+                for (let x = minX; x <= maxX; x++) {
+                    const cell = document.querySelector('[data-x="' + x + '"][data-y="' + y + '"]');
+                    // Check bounds just in case, though the caller should handle it
+                    if (cell && grid[y] && grid[y][x] !== undefined) {
+                        cell.textContent = grid[y][x];
+                    }
+                }
+            }
+        }
+
 
         // --- Event Handlers (Updated for Touch) ---
 
@@ -693,7 +707,7 @@
         }
 
         function handleTouchMove(e) {
-            // Prevent scrolling while drawing/selecting
+            // Prevent scrolling while drawing/selecting/dragging for smooth motion
             if (isDrawing || isSelecting || isDraggingSelection) {
                 e.preventDefault(); 
             }
@@ -704,8 +718,8 @@
         }
         
         function handleMouseDown(e, x, y) {
-            // Prevent default browser behavior (e.g., selection) for mouse events
-            if (e.type === 'mousedown') e.preventDefault();
+            // Prevent default browser behavior (e.g., selection, scrolling)
+            if (e.type === 'mousedown' || e.type === 'touchstart') e.preventDefault();
             
             // Use the passed x, y for the initial click/touch point
             const startX = x;
@@ -723,8 +737,8 @@
                 if (selectionBox && isInsideSelection(startX, startY)) {
                     // Start Drag
                     isDraggingSelection = true;
-                    dragStartPos = { x: startX, y: startY };
                     
+                    // The position of the click relative to the selection's top-left corner (in grid units)
                     const minX = Math.min(selectionStart.x, selectionEnd.x);
                     const minY = Math.min(selectionStart.y, selectionEnd.y);
                     dragOffset = {
@@ -732,15 +746,21 @@
                         y: startY - minY
                     };
                     
-                    // Store grid state *without* the selected content for clean drag
+                    // Store grid state *without* the selected content for clean drag/restore
                     gridBeforeDrag = grid.map(row => [...row]);
                     const maxX = Math.max(selectionStart.x, selectionEnd.x);
                     const maxY = Math.max(selectionStart.y, selectionEnd.y);
                     for (let y = minY; y <= maxY; y++) {
                         for (let x = minX; x <= maxX; x++) {
-                            gridBeforeDrag[y][x] = ' '; // Clear selection area in the temp grid
+                            // Clear selection area in the temp grid and in the DOM before drag starts
+                            gridBeforeDrag[y][x] = ' '; 
+                            const cell = document.querySelector('[data-x="' + x + '"][data-y="' + y + '"]');
+                            if (cell) cell.textContent = ' ';
                         }
                     }
+
+                    // Reset selectionBox position to 0,0 for relative translation later
+                    selectionBox.style.transform = '';
                     
                 } else {
                     // Start Selection
@@ -774,6 +794,33 @@
                 finalizeSelection();
             } else if (isDraggingSelection) {
                 isDraggingSelection = false;
+                
+                // Commit final dragged position to the grid array
+                const w = selectedData[0].length;
+                const h = selectedData.length;
+                const clampedX = selectionStart.x;
+                const clampedY = selectionStart.y;
+                
+                // Place selected data at the clamped new position in the array
+                for (let sy = 0; sy < h; sy++) {
+                    for (let sx = 0; sx < w; sx++) {
+                        const targetY = clampedY + sy;
+                        const targetX = clampedX + sx;
+                        const char = selectedData[sy][sx];
+                        
+                        // FIX 2: Only overwrite the target cell if the selected character is NOT a space
+                        if (char !== ' ' && targetY >= 0 && targetY < height && targetX >= 0 && targetX < width) {
+                            grid[targetY][targetX] = char;
+                        }
+                    }
+                }
+                
+                // Final render of the affected area (new position)
+                fastRenderGrid(clampedX, clampedY, clampedX + w - 1, clampedY + h - 1);
+
+                // Reset selection box for next drag/selection
+                selectionBox.style.transform = '';
+
                 dragStartPos = null;
                 gridBeforeDrag = null;
                 saveState();
@@ -836,40 +883,57 @@
             }
         }
 
+        // Optimized moveSelection function
         function moveSelection(x, y) {
-            if (!selectedData || !dragStartPos || !gridBeforeDrag) return;
+            if (!selectedData || !gridBeforeDrag || !selectionBox) return;
             
-            // Calculate new top-left corner index
-            const newX = x - dragOffset.x;
-            const newY = y - dragOffset.y;
-
             const w = selectedData[0].length;
             const h = selectedData.length;
+
+            // --- CLAMPING AND POSITION CALCULATION ---
+            // Calculate new top-left corner index (grid coordinates)
+            const newX = x - dragOffset.x;
+            const newY = y - dragOffset.y;
             
-            // Clamp new position to grid boundaries
+            // Clamp new grid position
             const clampedX = Math.max(0, Math.min(width - w, newX));
             const clampedY = Math.max(0, Math.min(height - h, newY));
-            
-            // Restore grid to its pre-drag state
-            grid = gridBeforeDrag.map(row => [...row]);
 
-            // Place selected data at the clamped new position
+            // --- FAST RENDER LOGIC ---
+            // 1. Determine the combined bounding box of the old and new selection positions.
+            const oldMinX = selectionStart.x;
+            const oldMaxX = selectionEnd.x;
+            const oldMinY = selectionStart.y;
+            const oldMaxY = selectionEnd.y;
+
+            const renderMinX = Math.min(oldMinX, clampedX);
+            const renderMaxX = Math.max(oldMaxX, clampedX + w - 1);
+            const renderMinY = Math.min(oldMinY, clampedY);
+            const renderMaxY = Math.max(oldMaxY, clampedY + h - 1);
+
+            // 2. Restore grid to its pre-drag state in the array
+            // This is crucial: it clears the previous *visual* state from the grid array
+            grid = gridBeforeDrag.map(row => [...row]); 
+
+            // 3. Place selected data at the clamped new position in the array
             for (let sy = 0; sy < h; sy++) {
                 for (let sx = 0; sx < w; sx++) {
                     const targetY = clampedY + sy;
                     const targetX = clampedX + sx;
                     const char = selectedData[sy][sx];
+                    // Only update if within bounds AND the character is NOT a space
                     if (char !== ' ' && targetY >= 0 && targetY < height && targetX >= 0 && targetX < width) {
                         grid[targetY][targetX] = char;
                     }
                 }
             }
 
-            // Update selection box boundaries to the new position
+            // 4. Update selection box coordinates
             selectionStart = { x: clampedX, y: clampedY };
             selectionEnd = { x: clampedX + w - 1, y: clampedY + h - 1 };
 
-            renderGrid();
+            // 5. Update DOM only for the combined affected area (fastRenderGrid)
+            fastRenderGrid(renderMinX, renderMinY, renderMaxX, renderMaxY);
             updateSelectionBox();
         }
 
@@ -953,7 +1017,7 @@
         }
 
         function renderGrid() {
-            // Rerenders the DOM content to match the grid array
+            // Rerenders the entire DOM content to match the grid array (used only for init/load/undo/clear)
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
                     const cell = document.querySelector('[data-x="' + x + '"][data-y="' + y + '"]');
@@ -1150,7 +1214,7 @@
                     cell.dataset.y = y;
 
                     cell.addEventListener('mousedown', (e) => handleMouseDown(e, x, y));
-                    cell.addEventListener('touchstart', (e) => handleMouseDown(e, x, y), { passive: true });
+                    cell.addEventListener('touchstart', (e) => handleMouseDown(e, x, y), { passive: false });
                     
                     cell.addEventListener('mouseenter', () => handleMouseEnter(x, y));
                     cell.addEventListener('touchmove', (e) => handleTouchMove(e, x, y), { passive: false });
