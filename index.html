@@ -30,7 +30,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            /* Default padding for open panel on mobile */
+            /* Default padding for open panel on mobile (set by JS initially) */
             padding-bottom: 250px; 
         }
         
@@ -78,7 +78,7 @@
             pointer-events: none;
         }
 
-        /* Control Panel Container (Mobile Default: Full-Width Bottom) */
+        /* Control Panel Container (Mobile/Tablet Default: Full-Width Bottom) */
         .panel {
             position: fixed;
             bottom: 0;
@@ -90,10 +90,10 @@
             width: 100%; 
             max-width: 100%;
             z-index: 1000;
-            transition: all 0.3s ease-in-out; /* Added transition for smooth change to tiny button */
+            transition: all 0.3s ease-in-out;
         }
 
-        /* Panel Header (Mobile Default: Full-Width Collapse Button) */
+        /* Panel Header (Mobile/Tablet Default: Full-Width Collapse Button) */
         .panel-header {
             padding: 10px; 
             border-top: none; 
@@ -151,213 +151,38 @@
             display: none;
         }
 
-        /* --- Controls Styling (Rest remains unchanged) --- */
-        .control-group {
-            margin-bottom: 15px;
-        }
+        /* Standard Controls Styling */
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; font-size: 11px; margin-bottom: 5px; color: #8b949e; text-transform: uppercase; }
+        .size-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .size-inputs input { width: 70px; font-size: 14px; padding: 8px 10px; }
+        input, button { background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 12px; font-family: 'Courier New', monospace; font-size: 12px; border-radius: 4px; }
+        button { cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #21262d; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .button-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .button-group button { flex: 1; min-width: 60px; }
+        .tool-mode { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tool-btn { flex: 1; padding: 8px; font-size: 12px; min-width: 60px; }
+        .tool-btn.active { background: #1f6feb; border-color: #1f6feb; }
+        .keyboard { display: flex; flex-direction: column; gap: 4px; }
+        .kbd-row { display: flex; gap: 4px; flex-wrap: wrap; }
+        .key { background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 4px; min-width: 28px; text-align: center; cursor: pointer; font-family: 'Courier New', monospace; font-size: 11px; border-radius: 3px; transition: all 0.1s; }
+        .key:hover { background: #21262d; border-color: #58a6ff; }
+        .key.active { background: #1f6feb; border-color: #1f6feb; }
+        #customCharInput { width: 100%; padding: 8px; font-size: 14px; }
+        #savedProjectsList { max-height: 120px; overflow-y: auto; border: 1px solid #30363d; border-radius: 3px; padding: 5px; background: #0d1117; margin-top: 5px; }
+        .saved-item { padding: 8px; cursor: pointer; border-radius: 2px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; font-size: 12px; }
+        .saved-item:hover { background: #21262d; }
+        .saved-item-delete { color: #f85149; font-size: 10px; padding: 4px 8px; }
 
-        .control-group label {
-            display: block;
-            font-size: 11px;
-            margin-bottom: 5px;
-            color: #8b949e;
-            text-transform: uppercase;
-        }
-
-        .size-inputs {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .size-inputs input {
-            width: 70px; 
-            font-size: 14px;
-            padding: 8px 10px;
-        }
-
-        input, button {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 8px 12px; 
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            border-radius: 4px;
-        }
-
-        button {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: #21262d;
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 6px; 
-            flex-wrap: wrap;
-        }
-
-        .button-group button {
-            flex: 1;
-            min-width: 60px;
-        }
-        
-        .tool-mode {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .tool-btn {
-            flex: 1;
-            padding: 8px;
-            font-size: 12px;
-            min-width: 60px;
-        }
-
-        .tool-btn.active {
-            background: #1f6feb;
-            border-color: #1f6feb;
-        }
-
-        .keyboard {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .kbd-row {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .key {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 6px 4px; 
-            min-width: 28px; 
-            text-align: center;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            border-radius: 3px;
-            transition: all 0.1s;
-        }
-
-        .key:hover {
-            background: #21262d;
-            border-color: #58a6ff;
-        }
-
-        .key.active {
-            background: #1f6feb;
-            border-color: #1f6feb;
-        }
-        
-        #customCharInput {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-        }
-
-        #savedProjectsList {
-            max-height: 120px;
-            overflow-y: auto;
-            border: 1px solid #30363d;
-            border-radius: 3px;
-            padding: 5px;
-            background: #0d1117;
-            margin-top: 5px;
-        }
-
-        .saved-item {
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 2px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3px;
-            font-size: 12px;
-        }
-
-        .saved-item:hover {
-            background: #21262d;
-        }
-
-        .saved-item-delete {
-            color: #f85149;
-            font-size: 10px;
-            padding: 4px 8px;
-        }
-        /* --- End Controls Styling --- */
-
-        /* Media Queries for Desktop/Tablet Layout (>= 768px) */
-        @media (min-width: 768px) {
-            #canvasContainer {
-                position: absolute;
-                min-height: 100vh;
-                padding-bottom: 20px; 
-                overflow: hidden;
-            }
-
-            .panel {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                left: auto;
-                width: 320px;
-                border: 1px solid #30363d;
-                border-radius: 6px;
-                border-top: none;
-            }
-            
-            .panel-header {
-                padding: 8px 10px;
-                border-top: 1px solid #30363d;
-                font-size: 12px;
-            }
-            
-            .toggle-icon.collapsed {
-                transform: rotate(180deg); 
-            }
-            
-            .panel-content.collapsed + .panel-header .toggle-icon {
-                transform: rotate(0deg);
-            }
-
-            .panel-content.collapsed {
-                display: none;
-            }
-            
-            .panel-content {
-                border-bottom: 1px solid #30363d;
-            }
-        }
-        
-        /* * MOBILE-ONLY STYLES (<= 767px) for TINY COLLAPSED BUTTON 
+        /*
+         * MOBILE & TABLET TINY BUTTON OVERRIDE (Screen width <= 1200px)
+         * This ensures the tiny button works for phones and tablets in landscape mode.
          */
-        @media (max-width: 767px) {
+        @media (max-width: 1200px) {
             
-            /* Override Canvas Container Padding when panel is tiny */
-            #canvasContainer {
-                padding-bottom: 20px; /* Reset padding to standard bottom margin */
-            }
-
-            /* * Styles for the header when the panel content is collapsed 
+            /* Styles for the header when the panel content is collapsed 
              * This creates the "really, really, really, really tiny button" 
              */
             .panel-content.collapsed + .panel-header {
@@ -381,12 +206,6 @@
                 z-index: 1001; 
                 border: 2px solid #58a6ff; 
                 background: #1f6feb; 
-                
-                /* Ensure panel container doesn't override width */
-                transform: translateX(0);
-                
-                /* Remove hover state background color change for better UX */
-                background: #1f6feb; 
             }
             
             /* Remove hover effect from the tiny button */
@@ -402,25 +221,56 @@
             /* Adjust the icon for the tiny button */
             .panel-content.collapsed + .panel-header .toggle-icon {
                 display: block;
-                font-size: 18px; /* Slightly larger icon for better visibility on tiny target */
+                font-size: 18px; 
                 color: #c9d1d9;
                 /* Icon points down when collapsed/tiny */
                 transform: rotate(180deg); 
             }
-            
-            /* Ensure the full .panel container is invisible when tiny/collapsed */
-            .panel-content.collapsed {
-                /* Only the header is visible, so the container is effectively the header */
-                width: 30px;
+        }
+
+
+        /* * PC/DESKTOP Layout (Screen width >= 1201px) 
+         * This uses the standard large side panel.
+         */
+        @media (min-width: 1201px) {
+            #canvasContainer {
+                position: absolute;
+                min-height: 100vh;
+                padding-bottom: 20px; /* Reset padding for desktop */
+                overflow: hidden;
             }
 
-            /* When open, the panel should reset to full width at the bottom */
-            .panel:not(.panel-content.collapsed ~ .panel-header) {
-                width: 100%;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                border-radius: 0;
+            .panel {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                left: auto;
+                width: 320px;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                border-top: none;
+            }
+            
+            .panel-header {
+                padding: 8px 10px;
+                border-top: 1px solid #30363d;
+                font-size: 12px;
+            }
+            
+            .toggle-icon.collapsed {
+                transform: rotate(180deg); /* Desktop: Icon points down when panel is collapsed */
+            }
+            
+            .panel-content.collapsed + .panel-header .toggle-icon {
+                transform: rotate(0deg); /* Desktop: Icon points up when panel is open (default) */
+            }
+
+            .panel-content.collapsed {
+                display: none;
+            }
+            
+            .panel-content {
+                border-bottom: 1px solid #30363d;
             }
         }
     </style>
@@ -684,15 +534,16 @@
             content.classList.toggle('collapsed');
             icon.classList.toggle('collapsed');
             
-            // Adjust canvas padding for mobile only when opening/closing
-            const isMobile = window.matchMedia('(max-width: 767px)').matches;
+            // Adjust canvas padding based on breakpoint and open/closed state
+            const isMobileOrTablet = window.matchMedia('(max-width: 1200px)').matches;
             const container = document.getElementById('canvasContainer');
-            if (isMobile) {
+            
+            if (isMobileOrTablet) {
                 // If opening (content not collapsed), set large padding
                 if (!content.classList.contains('collapsed')) {
                     container.style.paddingBottom = '250px';
                 } else {
-                    // If collapsing (content collapsed), set small padding
+                    // If collapsing (content collapsed/tiny button), set small padding
                     container.style.paddingBottom = '20px';
                 }
             }
@@ -1295,11 +1146,12 @@
             }
             
             // Ensure proper canvas padding is restored/set after loading if it's open
-             const isMobile = window.matchMedia('(max-width: 767px)').matches;
+            // Uses the 1200px breakpoint for mobile/tablet detection
+             const isMobileOrTablet = window.matchMedia('(max-width: 1200px)').matches;
              const content = document.getElementById('panelContent');
-             if (isMobile && !content.classList.contains('collapsed')) {
+             if (isMobileOrTablet && !content.classList.contains('collapsed')) {
                  document.getElementById('canvasContainer').style.paddingBottom = '250px';
-             } else if (isMobile && content.classList.contains('collapsed')) {
+             } else if (isMobileOrTablet && content.classList.contains('collapsed')) {
                  document.getElementById('canvasContainer').style.paddingBottom = '20px';
              }
         }
@@ -1459,19 +1311,22 @@
         
         // --- Initialization on Load ---
         
-        // Mobile-first: start with the panel collapsed for desktop, open for mobile
-        const isMobile = window.matchMedia('(max-width: 767px)').matches;
-        if (!isMobile) {
-            // Desktop/Tablet initialization (Default collapsed)
+        // Mobile/Tablet vs Desktop detection via 1200px breakpoint
+        const isMobileOrTablet = window.matchMedia('(max-width: 1200px)').matches;
+        
+        if (!isMobileOrTablet) {
+            // Desktop/PC initialization (Default collapsed on the side)
             document.getElementById('panelContent').classList.add('collapsed');
             document.getElementById('toggleIcon').classList.add('collapsed');
+             // Desktop default padding is already set in CSS
         } else {
-             // Mobile initialization (Default open)
-            document.getElementById('canvasContainer').style.paddingBottom = '250px';
+             // Mobile/Tablet initialization (Default open at the bottom)
+             // Default canvas padding is 250px (defined in JS, updated in togglePanel/initCanvasWithGrid)
+             document.getElementById('canvasContainer').style.paddingBottom = '250px';
         }
 
         initKeyboard();
-        initCanvas(); // Also calls applyCanvasStyles and saveState(initial)
+        initCanvas(); 
         loadProjectsList();
     </script>
 </body>
