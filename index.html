@@ -178,53 +178,66 @@
 
         /*
          * MOBILE & TABLET TINY BUTTON OVERRIDE (Screen width <= 1200px)
-         * This ensures the tiny button works for phones and tablets in landscape mode.
+         * Shows current symbol and is not blue.
          */
         @media (max-width: 1200px) {
             
-            /* Styles for the header when the panel content is collapsed 
-             * This creates the "really, really, really, really tiny button" 
-             */
+            /* 1. Base Tiny Button Styles */
             .panel-content.collapsed + .panel-header {
                 /* Positioning for tiny button */
                 position: fixed; 
-                bottom: 15px;    /* Small offset from bottom */
-                right: 15px;     /* Small offset from right */
-                left: auto;      /* Ignore left edge */
+                bottom: 15px;    
+                right: 15px;     
+                left: auto;      
                 
                 /* Size - Very tiny as requested */
                 width: 30px;     
                 height: 30px;    
                 min-width: 30px;
                 
-                /* Visuals */
+                /* Visuals - NO BLUE */
                 padding: 0;      
                 border-radius: 50%; 
-                justify-content: center; 
-                align-items: center;
                 overflow: hidden; 
                 z-index: 1001; 
-                border: 2px solid #58a6ff; 
-                background: #1f6feb; 
+                border: 2px solid #30363d; /* Neutral Border */
+                background: #161b22;      /* Neutral Background */
             }
             
-            /* Remove hover effect from the tiny button */
+            /* 2. Neutral Hover State */
             .panel-content.collapsed + .panel-header:hover {
-                 background: #1f6feb;
+                 background: #21262d; /* Subtle hover color */
             }
 
-            /* Hide the title and character preview */
+            /* 3. Show and Center the Symbol (panel-title contains it) */
             .panel-content.collapsed + .panel-header .panel-title {
+                display: flex; /* Make the title container visible */
+                width: 100%;
+                height: 100%;
+                justify-content: center; /* Center horizontally */
+                align-items: center;     /* Center vertically */
+                gap: 0; /* Remove gap */
+            }
+
+            /* 4. Hide the "TOOLS" text (first span inside panel-title) */
+            .panel-content.collapsed + .panel-header .panel-title span:first-child {
                 display: none;
             }
 
-            /* Adjust the icon for the tiny button */
-            .panel-content.collapsed + .panel-header .toggle-icon {
-                display: block;
+            /* 5. Style the Character Preview Span to be big and transparent */
+            .panel-content.collapsed + .panel-header .current-char {
+                background: transparent;
+                border: none;
+                padding: 0;
+                /* Set font size for the tiny button */
                 font-size: 18px; 
-                color: #c9d1d9;
-                /* Icon points down when collapsed/tiny */
-                transform: rotate(180deg); 
+                min-width: 0;
+                line-height: 1;
+            }
+
+            /* 6. Hide the toggle icon */
+            .panel-content.collapsed + .panel-header .toggle-icon {
+                display: none;
             }
         }
 
@@ -442,8 +455,10 @@
                 cell.style.height = charHeight + 'px';
             });
             
-            // Update the character preview size
-            document.getElementById('charPreview').style.fontSize = fontSize + 'px';
+            // Update the character preview size for the OPEN panel
+            const charPreview = document.getElementById('charPreview');
+            // We use JS to set the font size here, but CSS overrides it when the panel is collapsed/tiny
+            charPreview.style.fontSize = fontSize + 'px'; 
             
             // Update selection box if present
             if (selectionBox) updateSelectionBox();
@@ -508,7 +523,8 @@
             
             const preview = document.getElementById('charPreview');
             preview.textContent = char === ' ' ? '⎵' : char;
-            preview.style.fontSize = fontSize + 'px';
+            // The size for the open panel is set here. The collapsed panel size is overridden by CSS.
+            preview.style.fontSize = fontSize + 'px'; 
         }
 
         function setTool(tool) {
