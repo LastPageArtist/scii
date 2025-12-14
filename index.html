@@ -23,14 +23,14 @@
 
         /* Canvas Container */
         #canvasContainer {
-            position: relative; /* Changed to relative for mobile layout */
+            position: relative; 
             width: 100%;
-            min-height: 100vh; /* Ensure it takes full viewport height initially */
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            /* Added padding-bottom to ensure canvas is visible above the fixed panel */
+            /* Default padding for open panel on mobile */
             padding-bottom: 250px; 
         }
         
@@ -44,10 +44,9 @@
             cursor: crosshair;
             user-select: none;
             position: relative;
-            /* Added for consistent display and scaling */
             white-space: pre; 
-            max-width: 100%; /* Important for mobile responsiveness */
-            overflow: auto; /* Allow scrolling within the canvas area if it exceeds viewport */
+            max-width: 100%; 
+            overflow: auto; 
         }
 
         #canvas.select-mode {
@@ -60,7 +59,7 @@
 
         .row {
             white-space: pre;
-            display: flex; /* Use flex for more control on mobile */
+            display: flex; 
         }
 
         .cell {
@@ -79,31 +78,32 @@
             pointer-events: none;
         }
 
-        /* Control Panel */
+        /* Control Panel Container (Mobile Default: Full-Width Bottom) */
         .panel {
             position: fixed;
-            bottom: 0; /* Align to bottom for better mobile access */
-            left: 0; /* Take full width on mobile */
+            bottom: 0;
+            left: 0;
             right: 0;
             background: #161b22;
-            border-top: 1px solid #30363d; /* Only top border for full-width panel */
-            border-radius: 0; /* Remove border radius for full-width */
-            width: 100%; /* Full width on mobile */
+            border-top: 1px solid #30363d;
+            border-radius: 0; 
+            width: 100%; 
             max-width: 100%;
             z-index: 1000;
-            transition: bottom 0.3s;
+            transition: all 0.3s ease-in-out; /* Added transition for smooth change to tiny button */
         }
 
-        /* Panel Header */
+        /* Panel Header (Mobile Default: Full-Width Collapse Button) */
         .panel-header {
-            padding: 10px; /* Slightly more padding for touch targets */
-            border-top: none; /* Removed as panel-container has it */
+            padding: 10px; 
+            border-top: none; 
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
             user-select: none;
-            font-size: 14px; /* Larger font size for readability */
+            font-size: 14px; 
+            transition: all 0.3s;
         }
 
         .panel-header:hover {
@@ -120,13 +120,13 @@
             display: inline-block;
             background: #0d1117;
             border: 1px solid #30363d;
-            padding: 4px 8px; /* Larger touch target */
+            padding: 4px 8px;
             min-width: 30px;
             text-align: center;
         }
 
         .toggle-icon {
-            font-size: 16px; /* Larger icon for touch */
+            font-size: 16px; 
             transition: transform 0.2s;
         }
 
@@ -134,14 +134,15 @@
             transform: rotate(0deg); /* Icon points up when panel is open (mobile default) */
         }
         
+        /* Icon points down when panel is collapsed (full width mobile) */
         .panel-content.collapsed + .panel-header .toggle-icon {
-            transform: rotate(180deg); /* Icon points down when panel is collapsed */
+            transform: rotate(180deg); 
         }
 
         /* Panel Content */
         .panel-content {
             padding: 10px;
-            max-height: 80vh; /* Increased max height for more content visibility */
+            max-height: 80vh; 
             overflow-y: auto;
             border-bottom: 1px solid #30363d;
         }
@@ -150,9 +151,9 @@
             display: none;
         }
 
-        /* Controls */
+        /* --- Controls Styling (Rest remains unchanged) --- */
         .control-group {
-            margin-bottom: 15px; /* More vertical space */
+            margin-bottom: 15px;
         }
 
         .control-group label {
@@ -171,7 +172,7 @@
         }
 
         .size-inputs input {
-            width: 70px; /* Wider input for better touch */
+            width: 70px; 
             font-size: 14px;
             padding: 8px 10px;
         }
@@ -180,7 +181,7 @@
             background: #0d1117;
             border: 1px solid #30363d;
             color: #c9d1d9;
-            padding: 8px 12px; /* Larger touch targets */
+            padding: 8px 12px; 
             font-family: 'Courier New', monospace;
             font-size: 12px;
             border-radius: 4px;
@@ -202,13 +203,13 @@
 
         .button-group {
             display: flex;
-            gap: 6px; /* Increased gap */
+            gap: 6px; 
             flex-wrap: wrap;
         }
 
         .button-group button {
             flex: 1;
-            min-width: 60px; /* Minimum width for buttons */
+            min-width: 60px;
         }
         
         .tool-mode {
@@ -230,7 +231,6 @@
             border-color: #1f6feb;
         }
 
-        /* Keyboard */
         .keyboard {
             display: flex;
             flex-direction: column;
@@ -247,8 +247,8 @@
             background: #0d1117;
             border: 1px solid #30363d;
             color: #c9d1d9;
-            padding: 6px 4px; /* Larger padding for touch */
-            min-width: 28px; /* Larger minimum width */
+            padding: 6px 4px; 
+            min-width: 28px; 
             text-align: center;
             cursor: pointer;
             font-family: 'Courier New', monospace;
@@ -273,7 +273,6 @@
             font-size: 14px;
         }
 
-        /* Saved Projects List */
         #savedProjectsList {
             max-height: 120px;
             overflow-y: auto;
@@ -304,13 +303,14 @@
             font-size: 10px;
             padding: 4px 8px;
         }
+        /* --- End Controls Styling --- */
 
-        /* Media Queries for Desktop/Tablet Layout */
+        /* Media Queries for Desktop/Tablet Layout (>= 768px) */
         @media (min-width: 768px) {
             #canvasContainer {
                 position: absolute;
                 min-height: 100vh;
-                padding-bottom: 20px; /* Reset padding for desktop */
+                padding-bottom: 20px; 
                 overflow: hidden;
             }
 
@@ -332,11 +332,11 @@
             }
             
             .toggle-icon.collapsed {
-                transform: rotate(180deg); /* Desktop: Icon points down when panel is collapsed */
+                transform: rotate(180deg); 
             }
             
             .panel-content.collapsed + .panel-header .toggle-icon {
-                transform: rotate(0deg); /* Desktop: Icon points up when panel is open (default) */
+                transform: rotate(0deg);
             }
 
             .panel-content.collapsed {
@@ -345,6 +345,82 @@
             
             .panel-content {
                 border-bottom: 1px solid #30363d;
+            }
+        }
+        
+        /* * MOBILE-ONLY STYLES (<= 767px) for TINY COLLAPSED BUTTON 
+         */
+        @media (max-width: 767px) {
+            
+            /* Override Canvas Container Padding when panel is tiny */
+            #canvasContainer {
+                padding-bottom: 20px; /* Reset padding to standard bottom margin */
+            }
+
+            /* * Styles for the header when the panel content is collapsed 
+             * This creates the "really, really, really, really tiny button" 
+             */
+            .panel-content.collapsed + .panel-header {
+                /* Positioning for tiny button */
+                position: fixed; 
+                bottom: 15px;    /* Small offset from bottom */
+                right: 15px;     /* Small offset from right */
+                left: auto;      /* Ignore left edge */
+                
+                /* Size - Very tiny as requested */
+                width: 30px;     
+                height: 30px;    
+                min-width: 30px;
+                
+                /* Visuals */
+                padding: 0;      
+                border-radius: 50%; 
+                justify-content: center; 
+                align-items: center;
+                overflow: hidden; 
+                z-index: 1001; 
+                border: 2px solid #58a6ff; 
+                background: #1f6feb; 
+                
+                /* Ensure panel container doesn't override width */
+                transform: translateX(0);
+                
+                /* Remove hover state background color change for better UX */
+                background: #1f6feb; 
+            }
+            
+            /* Remove hover effect from the tiny button */
+            .panel-content.collapsed + .panel-header:hover {
+                 background: #1f6feb;
+            }
+
+            /* Hide the title and character preview */
+            .panel-content.collapsed + .panel-header .panel-title {
+                display: none;
+            }
+
+            /* Adjust the icon for the tiny button */
+            .panel-content.collapsed + .panel-header .toggle-icon {
+                display: block;
+                font-size: 18px; /* Slightly larger icon for better visibility on tiny target */
+                color: #c9d1d9;
+                /* Icon points down when collapsed/tiny */
+                transform: rotate(180deg); 
+            }
+            
+            /* Ensure the full .panel container is invisible when tiny/collapsed */
+            .panel-content.collapsed {
+                /* Only the header is visible, so the container is effectively the header */
+                width: 30px;
+            }
+
+            /* When open, the panel should reset to full width at the bottom */
+            .panel:not(.panel-content.collapsed ~ .panel-header) {
+                width: 100%;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 0;
             }
         }
     </style>
@@ -487,9 +563,6 @@
 
         /**
          * Calculates cell dimensions using a fixed ratio to the font size.
-         * This ensures that $charWidth$ and $charHeight$ are derived purely from $fontSize$ 
-         * and not from device-dependent CSS/DOM measurements, which is crucial for
-         * import/export compatibility and consistent drag/drop.
          */
         function calculateCharDimensions() {
             // Use fixed, consistent ratios and round to nearest integer to prevent
@@ -610,6 +683,19 @@
             const icon = document.getElementById('toggleIcon');
             content.classList.toggle('collapsed');
             icon.classList.toggle('collapsed');
+            
+            // Adjust canvas padding for mobile only when opening/closing
+            const isMobile = window.matchMedia('(max-width: 767px)').matches;
+            const container = document.getElementById('canvasContainer');
+            if (isMobile) {
+                // If opening (content not collapsed), set large padding
+                if (!content.classList.contains('collapsed')) {
+                    container.style.paddingBottom = '250px';
+                } else {
+                    // If collapsing (content collapsed), set small padding
+                    container.style.paddingBottom = '20px';
+                }
+            }
         }
 
         function updateFontSize() {
@@ -958,7 +1044,7 @@
             const minY = Math.min(selectionStart.y, selectionEnd.y);
             const maxY = Math.max(selectionStart.y, selectionEnd.y);
             for (let y = minY; y <= maxY; y++) {
-                for (let x = minX; x <= maxX; x++) {
+                for (let x = minX; x < maxX + 1; x++) {
                     grid[y][x] = ' ';
                 }
             }
@@ -1207,6 +1293,15 @@
 
                 canvas.appendChild(row);
             }
+            
+            // Ensure proper canvas padding is restored/set after loading if it's open
+             const isMobile = window.matchMedia('(max-width: 767px)').matches;
+             const content = document.getElementById('panelContent');
+             if (isMobile && !content.classList.contains('collapsed')) {
+                 document.getElementById('canvasContainer').style.paddingBottom = '250px';
+             } else if (isMobile && content.classList.contains('collapsed')) {
+                 document.getElementById('canvasContainer').style.paddingBottom = '20px';
+             }
         }
 
 
@@ -1367,8 +1462,12 @@
         // Mobile-first: start with the panel collapsed for desktop, open for mobile
         const isMobile = window.matchMedia('(max-width: 767px)').matches;
         if (!isMobile) {
+            // Desktop/Tablet initialization (Default collapsed)
             document.getElementById('panelContent').classList.add('collapsed');
             document.getElementById('toggleIcon').classList.add('collapsed');
+        } else {
+             // Mobile initialization (Default open)
+            document.getElementById('canvasContainer').style.paddingBottom = '250px';
         }
 
         initKeyboard();
